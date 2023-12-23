@@ -1,7 +1,7 @@
 defmodule Eray.Space do
   alias Eray.Vector
 
-  def intersect(ray, triangle) do
+  def intersects(ray, triangle) do
     #
     # Möller–Trumbore intersection algorithm
     #
@@ -12,21 +12,22 @@ defmodule Eray.Space do
 
     if det < 0 do
       # backface culling
-      false
+      nil
     else
       tvec = Vector.sub(ray.orig, triangle.vert0)
       u = Vector.dot(tvec, pvec)
 
       if u < 0 or u > det do
-        false
+        nil
       else
         qvec = Vector.cross(tvec, edge1)
         v = Vector.dot(ray.dir, qvec)
 
         if v < 0 or u + v > det do
-          false
+          nil
         else
-          true
+          t = Vector.dot(edge2, qvec) / det
+          t
         end
       end
     end

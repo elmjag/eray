@@ -1,5 +1,6 @@
 defmodule Eray.Vector do
   alias Eray.Vector
+
   defstruct x: 0.0, y: 0.0, z: 0.0
 
   def new(x, y, z) do
@@ -24,5 +25,14 @@ defmodule Eray.Vector do
 
   def dot(a, b) do
     a.x * b.x + a.y * b.y + a.z * b.z
+  end
+
+  def length(v) do
+    :math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)
+  end
+
+  def normalize(v) do
+    len = Vector.length(v)
+    new(v.x / len, v.y / len, v.z / len)
   end
 end

@@ -1,40 +1,43 @@
 defmodule X do
   alias Eray.Vector
   alias Eray.Graphics
-  alias Eray.Triangle
   alias Eray.Ray
-  alias Eray.Space
+  alias Eray.Scene
 
-  def pixel_vector_hit(triangle, {pixel, vector}) do
+  def pixel_vector_hit(scene, {pixel, vector}) do
     ray_dir = Vector.sub(Vector.new(0, 0, 0), vector)
     ray = Ray.new(vector, ray_dir)
 
-    {pixel, Space.intersect(ray, triangle)}
+    triangle = Scene.get_ray_hit(scene, ray)
+
+    if triangle == nil do
+      nil
+    else
+      {pixel, triangle.color}
+    end
   end
 
-  def hits_stream(pixels, triangle) do
-    Stream.map(pixels, fn p -> pixel_vector_hit(triangle, p) end)
-    |> Stream.filter(fn {_pixel, hit} -> hit end)
-    |> Stream.map(fn {pixel, _} -> pixel end)
+  def hits_stream(pixels, scene) do
+    Stream.map(pixels, fn p -> pixel_vector_hit(scene, p) end)
+    |> Stream.filter(fn e -> e != nil end)
   end
 
-  def dump(pixel_hits) do
-    Enum.each(pixel_hits, fn p -> IO.puts(inspect(p)) end)
+  defp draw_pixel({{x, y}, color}) do
+    Graphics.set_pixel(color.r, color.g, color.b, x, y)
   end
 
-  def draw_pixels(screen, pixels) do
+  def draw_pixels(pixels, screen) do
     Graphics.init(screen.width, screen.height)
 
-    Enum.each(pixels, fn {x, y} -> Graphics.set_pixel(200, 0, 0, x, y) end)
+    Enum.each(pixels, &draw_pixel/1)
 
     Graphics.update_window()
   end
 
   def t do
-    screen = Screen.new(640, 480, 64)
-    triangle = Triangle.new(Vector.new(0, 20, 8), Vector.new(10, -20, 8), Vector.new(-10, -20, 8))
+    screen = Screen.new(640, 480, 240)
+    scene = Scene.load()
 
-    pixels = Screen.get_pixel_vectors(screen) |> hits_stream(triangle)
-    draw_pixels(screen, pixels)
+    Screen.get_pixel_vectors(screen) |> hits_stream(scene) |> draw_pixels(screen)
   end
 end
