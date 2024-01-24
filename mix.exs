@@ -22,7 +22,8 @@ defmodule Eray.MixProject do
 
   defp deps do
     [
-      {:elixir_make, "~> 0.7", runtime: false}
+      {:elixir_make, "~> 0.7", runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 end
