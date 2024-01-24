@@ -1,4 +1,5 @@
 defmodule Eray.Quaternion do
+  alias Eray.Vector
   alias Eray.Quaternion
 
   defstruct w: 0.0, x: 0.0, y: 0.0, z: 0.0
@@ -20,6 +21,7 @@ defmodule Eray.Quaternion do
     new(quat.w, -quat.x, -quat.y, -quat.z)
   end
 
+  @spec rotor(float, %Vector{}) :: %Quaternion{}
   def rotor(angle, axis) do
     half_angle = angle / 2
     sin_val = :math.sin(half_angle)

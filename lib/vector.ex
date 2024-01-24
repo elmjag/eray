@@ -15,6 +15,14 @@ defmodule Eray.Vector do
     }
   end
 
+  def add(a, b) do
+    %Vector{
+      x: a.x + b.x,
+      y: a.y + b.y,
+      z: a.z + b.z
+    }
+  end
+
   def cross(a, b) do
     %Vector{
       x: a.y * b.z - a.z * b.y,
