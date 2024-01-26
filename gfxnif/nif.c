@@ -55,10 +55,18 @@ static ERL_NIF_TERM _wrap_gfx_update_window(ErlNifEnv* env, int argc, const ERL_
     return ok_atom;
 }
 
+static ERL_NIF_TERM _wrap_gfx_clear_pixels(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    gfx_clear_pixels();
+
+    return ok_atom;
+}
+
 static ErlNifFunc nif_funcs[] = {
     {"init", 2, _wrap_gfx_init},
     {"set_pixel", 5, _wrap_gfx_set_pixel},
     {"update_window", 0, _wrap_gfx_update_window},
+    {"clear_pixels", 0, _wrap_gfx_clear_pixels},
 };
 
 ERL_NIF_INIT(Elixir.Eray.Graphics, nif_funcs, load, NULL, NULL, NULL)

@@ -12,6 +12,11 @@ defmodule Eray.Object do
     %Object{rotation: rotation, translation: translation, mesh: mesh}
   end
 
+  @spec set_rotation(%Object{}, %Quaternion{}) :: %Object{}
+  def set_rotation(object, rotation) do
+    %Object{object | rotation: rotation}
+  end
+
   @spec get_triangles(%Object{}) :: list(%Triangle{})
   def get_triangles(object) do
     Mesh.rotate(object.mesh, object.rotation)

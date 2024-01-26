@@ -14,6 +14,10 @@ defmodule Eray.Graphics do
     :nif_load_error
   end
 
+  def clear_pixels() do
+    :nif_load_error
+  end
+
   def update_window() do
     :nif_load_error
   end

@@ -1,32 +1,40 @@
 defmodule Eray.Scene do
-  alias Eray.Scene
+  alias Eray.Object
+  alias Eray.Quaternion
+  alias Eray.Color
+  alias Eray.Mesh
   alias Eray.Space
   alias Eray.Vector
-  alias Eray.Triangle
 
-  defstruct triangles: []
-
-  def load do
-    t = [
-      Triangle.new(
-        Vector.new(0, 20, 100),
-        Vector.new(10, -20, 100),
-        Vector.new(-10, -20, 100),
-        200,
-        0,
-        0
-      ),
-      Triangle.new(
-        Vector.new(0 + 5, 20, 110),
-        Vector.new(10 + 5, -20, 110),
-        Vector.new(-10 + 5, -20, 110),
-        0,
-        180,
-        0
-      )
+  @spec load_pyramid() :: %Object{}
+  def load_pyramid do
+    vertices = [
+      Vector.new(0.0, 20.0, 0.0),
+      Vector.new(10.0, -20.0, -10.0),
+      Vector.new(-10.0, -20.0, -10.0),
+      Vector.new(-10.0, -20.0, 10.0),
+      Vector.new(10.0, -20.0, 10.0)
     ]
 
-    %Scene{triangles: t}
+    colors = [
+      Color.new(1.0, 0.0, 0.0),
+      Color.new(0.0, 1.0, 0.0),
+      Color.new(0.0, 0.0, 1.0),
+      Color.new(1.0, 1.0, 0.0)
+    ]
+
+    faces = [
+      {0, 1, 2, 0},
+      {0, 2, 3, 1},
+      {0, 3, 4, 2},
+      {0, 4, 1, 3}
+    ]
+
+    mesh = Mesh.new(vertices, colors, faces)
+    rotation = Quaternion.rotor(0.0, Vector.new(0.0, 1.0, 0.0))
+    translation = Vector.new(0.0, 0.0, 80.0)
+
+    Object.new(rotation, translation, mesh)
   end
 
   defp find_hits([], _, _, triangle) do
@@ -51,7 +59,7 @@ defmodule Eray.Scene do
     end
   end
 
-  def get_ray_hit(scene, ray) do
-    find_hits(scene.triangles, ray, :infinity, nil)
+  def get_ray_hit(triangles, ray) do
+    find_hits(triangles, ray, :infinity, nil)
   end
 end
