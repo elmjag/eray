@@ -32,7 +32,7 @@ defmodule Screen do
   def pixel_vector(x, y, xoffset, yoffset, depth) do
     vx = x + xoffset
     vy = -y + yoffset
-    vect = Vector.new(vx, vy, -depth)
+    vect = Vector.new(vx, vy, depth)
 
     {{x, y}, vect}
   end

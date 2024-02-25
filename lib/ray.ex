@@ -4,6 +4,7 @@ defmodule Eray.Ray do
 
   defstruct orig: nil, dir: nil
 
+  @spec new(%Vector{}, %Vector{}) :: %Ray{}
   def new(orig, dir) do
     %Ray{orig: orig, dir: Vector.normalize(dir)}
   end

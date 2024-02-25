@@ -6,8 +6,8 @@ defmodule X do
   alias Eray.Quaternion
   alias Eray.Object
 
-  def pixel_vector_hit(triangles, {pixel, vector}) do
-    ray_dir = Vector.sub(Vector.new(0, 0, 0), vector)
+  def pixel_ray_hit(triangles, rays_origo, {pixel, vector}) do
+    ray_dir = Vector.sub(vector, rays_origo)
     ray = Ray.new(vector, ray_dir)
 
     triangle = Scene.get_ray_hit(triangles, ray)
@@ -19,8 +19,13 @@ defmodule X do
     end
   end
 
-  def hits_stream(pixels, triangles) do
-    Stream.map(pixels, fn p -> pixel_vector_hit(triangles, p) end)
+  def find_hits(screen, scene) do
+    pixels = Enum.to_list(Screen.get_pixel_vectors(screen))
+    # hard-coded rays origo at point 0, 0, 0 for now
+    rays_origo = Vector.new(0.0, 0.0, 0.0)
+    triangles = Scene.get_triangles(scene)
+
+    Stream.map(pixels, fn p -> pixel_ray_hit(triangles, rays_origo, p) end)
     |> Stream.filter(fn e -> e != nil end)
   end
 
@@ -38,12 +43,15 @@ defmodule X do
     IO.puts("done")
   end
 
-  def draw_rotated(screen, object, angle) do
+  def draw_rotated(screen, scene, angle) do
+    # rotate object
     rotor = Quaternion.rotor(angle, Vector.new(0.0, 1.0, 0.0))
+    scene = %Scene{scene | object: Object.set_rotation(scene.object, rotor)}
 
-    triangles = Object.set_rotation(object, rotor) |> Object.get_triangles()
+    IO.puts("draw angle #{Math.rad2deg(angle)}")
 
-    Screen.get_pixel_vectors(screen) |> hits_stream(triangles) |> draw_pixels()
+    # render the scene
+    find_hits(screen, scene) |> draw_pixels()
 
     Graphics.update_window()
   end
@@ -52,38 +60,12 @@ defmodule X do
     screen = Screen.new(640, 480, 240)
     Graphics.init(screen.width, screen.height)
 
-    object = Scene.load_pyramid()
+    scene = Scene.load_pyramid()
+    # scene = Scene.load_square()
 
     steps = 64
 
-    Enum.map(0..steps, fn a -> a * (2.0 * :math.pi() / steps) end)
-    |> Enum.map(fn ang -> draw_rotated(screen, object, ang) end)
-  end
-
-  def q do
-    q0 = Quaternion.new(0.1, 1, 0, 0)
-    q1 = Quaternion.new(1, 0, 0, 1)
-    IO.puts("q0 #{inspect(q0)} q1 #{inspect(q1)}")
-
-    r = Quaternion.product(q0, q1)
-    IO.puts("r #{inspect(r)}")
-  end
-
-  # test rotation
-  defp rotate(angle, axis, vertex) do
-    rotor = Quaternion.rotor(angle, axis)
-    IO.puts("angle #{angle} rotor #{inspect(rotor)}")
-    Quaternion.product(rotor, vertex) |> Quaternion.product(Quaternion.inverse(rotor))
-  end
-
-  def r do
-    angle = :math.pi() / 2
-    axis = Vector.new(0.0, 1.0, 0.0)
-    vertex = Quaternion.new(0.0, 0.0, 1.0, 0.0)
-
-    rotate(angle, axis, vertex)
-
-    Enum.map(0..10, fn a -> a * (:math.pi() / 10) end)
-    |> Enum.map(fn ang -> rotate(ang, axis, vertex) end)
+    Enum.map(0..steps, fn a -> a * (2 * :math.pi() / steps) end)
+    |> Enum.map(fn ang -> :timer.tc(&draw_rotated/3, [screen, scene, ang]) end)
   end
 end
